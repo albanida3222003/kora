@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bitácora — Project Task &amp; Feature Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ======================= PANTALLA DE AUTENTICACIÓN ======================= -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <span class="auth-brand-mark">⌗</span>
+      <span class="auth-brand-name">Bitácora</span>
+    </div>
+    <p class="auth-tagline">Registro técnico de avance de proyectos.</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab is-active" data-auth-tab="login">Entrar</button>
+      <button class="auth-tab" data-auth-tab="signup">Crear cuenta</button>
+    </div>
+
+    <form id="auth-form-login" class="auth-form">
+      <label class="field">
+        <span class="field-label">Correo</span>
+        <input type="email" name="email" required placeholder="tu@correo.com" autocomplete="email" />
+      </label>
+      <label class="field">
+        <span class="field-label">Contraseña</span>
+        <input type="password" name="password" required placeholder="••••••••" autocomplete="current-password" />
+      </label>
+      <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+      <button type="button" id="btn-magic-link" class="btn btn-ghost btn-block">Enviar enlace mágico</button>
+    </form>
+
+    <form id="auth-form-signup" class="auth-form is-hidden">
+      <label class="field">
+        <span class="field-label">Correo</span>
+        <input type="email" name="email" required placeholder="tu@correo.com" autocomplete="email" />
+      </label>
+      <label class="field">
+        <span class="field-label">Contraseña</span>
+        <input type="password" name="password" required minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+      </label>
+      <button type="submit" class="btn btn-primary btn-block">Crear cuenta</button>
+    </form>
+
+    <p id="auth-message" class="auth-message"></p>
+  </div>
+</div>
+
+<!-- ============================ APLICACIÓN ============================ -->
+<div id="app" class="app is-hidden">
+
+  <!-- ---------- HEADER ---------- -->
+  <header class="app-header">
+    <div class="header-row header-row-top">
+      <div class="brand">
+        <span class="brand-mark">⌗</span>
+        <span class="brand-name">Bitácora</span>
+      </div>
+
+      <div class="header-selectors">
+        <select id="select-project" class="select select-project" aria-label="Proyecto activo"></select>
+        <button id="btn-new-project" class="btn btn-icon" title="Nuevo proyecto">+</button>
+
+        <div class="month-nav">
+          <button id="btn-prev-month" class="btn btn-icon" aria-label="Mes anterior">‹</button>
+          <span id="label-month" class="month-label">—</span>
+          <button id="btn-next-month" class="btn btn-icon" aria-label="Mes siguiente">›</button>
+        </div>
+      </div>
+
+      <div class="header-user">
+        <span id="label-user-email" class="user-email"></span>
+        <button id="btn-signout" class="btn btn-ghost btn-small">Salir</button>
+      </div>
+    </div>
+
+    <div class="header-row header-row-stats">
+      <div class="stat-block">
+        <span class="stat-value" id="stat-percent">0%</span>
+        <span class="stat-label">avance del mes</span>
+      </div>
+      <div class="stat-block">
+        <span class="stat-value" id="stat-done">0</span>
+        <span class="stat-label">completadas</span>
+      </div>
+      <div class="stat-block">
+        <span class="stat-value" id="stat-pending">0</span>
+        <span class="stat-label">pendientes</span>
+      </div>
+      <div class="stat-chart-wrap">
+        <canvas id="chart-weekly" height="46"></canvas>
+      </div>
+    </div>
+  </header>
+
+  <!-- ---------- CUERPO: SIDEBAR + VISTAS ---------- -->
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <h2 class="sidebar-title">Funciones</h2>
+        <button id="btn-add-task" class="btn btn-icon" title="Añadir función/tarea">+</button>
+      </div>
+
+      <div class="sidebar-filters">
+        <select id="filter-category" class="select select-small" aria-label="Filtrar por categoría">
+          <option value="">Todas las categorías</option>
+        </select>
+        <select id="filter-status" class="select select-small" aria-label="Filtrar por estado">
+          <option value="">Todos los estados</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="en_proceso">En proceso</option>
+          <option value="revision">Revisión</option>
+          <option value="hecho">Hecho</option>
+        </select>
+      </div>
+
+      <ul id="task-list" class="task-list"></ul>
+    </aside>
+
+    <!-- VISTAS -->
+    <main class="views">
+
+      <!-- VISTA: MATRIZ -->
+      <section id="view-matrix" class="view is-active">
+        <div class="matrix-scroll">
+          <table id="matrix-table" class="matrix-table">
+            <thead>
+              <tr id="matrix-head-days"></tr>
+            </thead>
+            <tbody id="matrix-body"></tbody>
+          </table>
+        </div>
+        <p id="matrix-empty" class="empty-state is-hidden">
+          Añade tu primera función con el botón <strong>+</strong> del panel izquierdo para empezar a registrar avance.
+        </p>
+      </section>
+
+      <!-- VISTA: KANBAN -->
+      <section id="view-kanban" class="view">
+        <div class="kanban-board">
+          <div class="kanban-col" data-status="pendiente">
+            <h3 class="kanban-col-title">Pendiente</h3>
+            <div class="kanban-col-body" data-dropzone="pendiente"></div>
+          </div>
+          <div class="kanban-col" data-status="en_proceso">
+            <h3 class="kanban-col-title">En proceso</h3>
+            <div class="kanban-col-body" data-dropzone="en_proceso"></div>
+          </div>
+          <div class="kanban-col" data-status="revision">
+            <h3 class="kanban-col-title">Revisión</h3>
+            <div class="kanban-col-body" data-dropzone="revision"></div>
+          </div>
+          <div class="kanban-col" data-status="hecho">
+            <h3 class="kanban-col-title">Hecho</h3>
+            <div class="kanban-col-body" data-dropzone="hecho"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VISTA: CONFIGURACIÓN -->
+      <section id="view-settings" class="view">
+        <div class="settings-panel">
+          <h2 class="settings-title">Proyectos</h2>
+          <p class="settings-hint">Administra tus proyectos. Los cambios se guardan directamente en Supabase.</p>
+          <ul id="settings-project-list" class="settings-project-list"></ul>
+
+          <h2 class="settings-title settings-title-spaced">Conexión</h2>
+          <p class="settings-hint">
+            Esta app usa Supabase para autenticación y datos. La URL y la clave anónima
+            se configuran en <code>app.js</code> (ver instrucciones de despliegue).
+          </p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ---------- NAV INFERIOR ---------- -->
+  <nav class="bottom-nav">
+    <button class="nav-btn is-active" data-view="matrix">
+      <span class="nav-icon">▦</span><span>Matriz</span>
+    </button>
+    <button class="nav-btn" data-view="kanban">
+      <span class="nav-icon">☰</span><span>Kanban</span>
+    </button>
+    <button class="nav-btn" data-view="settings">
+      <span class="nav-icon">⚙</span><span>Configuración</span>
+    </button>
+  </nav>
+</div>
+
+<!-- ============================ MODALES ============================ -->
+
+<!-- Modal: nuevo proyecto -->
+<div id="modal-project" class="modal-overlay is-hidden">
+  <div class="modal">
+    <h3 class="modal-title">Nuevo proyecto</h3>
+    <form id="form-new-project">
+      <label class="field">
+        <span class="field-label">Título</span>
+        <input type="text" name="title" required placeholder="Ej: App de Facturación" />
+      </label>
+      <label class="field">
+        <span class="field-label">Descripción (opcional)</span>
+        <input type="text" name="description" placeholder="Breve descripción" />
+      </label>
+      <label class="field">
+        <span class="field-label">Color de acento</span>
+        <input type="color" name="color" value="#4C9FE8" />
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+        <button type="submit" class="btn btn-primary">Crear proyecto</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: nueva tarea -->
+<div id="modal-task" class="modal-overlay is-hidden">
+  <div class="modal">
+    <h3 class="modal-title">Nueva función / tarea</h3>
+    <form id="form-new-task">
+      <label class="field">
+        <span class="field-label">Título</span>
+        <input type="text" name="title" required placeholder="Ej: Módulo de Pagos" />
+      </label>
+      <label class="field">
+        <span class="field-label">Categoría</span>
+        <input type="text" name="category" list="category-suggestions" placeholder="Ej: API Supabase" />
+        <datalist id="category-suggestions"></datalist>
+      </label>
+      <label class="field">
+        <span class="field-label">Fecha objetivo (opcional)</span>
+        <input type="date" name="target_date" />
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
+        <button type="submit" class="btn btn-primary">Añadir función</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast is-hidden"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>
