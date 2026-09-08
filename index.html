@@ -1,260 +1,467 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bitácora — Project Task &amp; Feature Tracker</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moshaco — Delivery de la selva</title>
+<meta name="description" content="Pide comida, súper y más. Moshaco lo lleva a tu puerta, rapidito.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Leaflet: mapa real con calles de Pucallpa (OpenStreetMap), sin necesidad de API key -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+<link rel="stylesheet" href="css/styles.css">
+
 </head>
 <body>
 
-<!-- ======================= PANTALLA DE AUTENTICACIÓN ======================= -->
-<div id="auth-screen" class="auth-screen">
-  <div class="auth-card">
-    <div class="auth-brand">
-      <span class="auth-brand-mark">⌗</span>
-      <span class="auth-brand-name">Bitácora</span>
+<!-- ============ HEADER ============ -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="#top" class="brand">
+      <img id="logo-img" src="assets/logo-light.png" alt="Moshaco">
+      <span class="brand-word">Moshaco</span>
+    </a>
+
+    <button class="location-picker" id="location-picker" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s7-7.5 7-13a7 7 0 1 0-14 0c0 5.5 7 13 7 13z"/><circle cx="12" cy="9" r="2.5"/></svg>
+      <span id="location-label">Casa · San Fernando Mz.14</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+
+    <div class="search-bar">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" placeholder="Busca restaurantes o platos…">
     </div>
-    <p class="auth-tagline">Registro técnico de avance de proyectos.</p>
 
-    <div class="auth-tabs">
-      <button class="auth-tab is-active" data-auth-tab="login">Entrar</button>
-      <button class="auth-tab" data-auth-tab="signup">Crear cuenta</button>
+    <div class="header-actions">
+      <button class="icon-btn search-trigger-mobile" id="open-search-mobile" type="button" aria-label="Buscar">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      </button>
+      <button class="icon-btn theme-toggle" id="theme-toggle" type="button" aria-label="Cambiar tema">
+        <svg class="icon-sun" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+        <svg class="icon-moon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+      <button class="icon-btn" type="button" aria-label="Notificaciones">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      </button>
+      <button class="btn btn-primary cart-btn" id="open-cart" type="button" aria-label="Mi pedido">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2 3h2l2.6 12.4a2 2 0 0 0 2 1.6h8.8a2 2 0 0 0 2-1.6L21 7H6"/></svg>
+        <span class="cart-label">Mi pedido</span>
+        <span class="cart-count" id="cart-badge">0</span>
+      </button>
+      <div class="auth-widget" id="auth-widget">
+        <button class="btn btn-primary" id="open-auth" type="button">Ingresar</button>
+        <div class="auth-dropdown" id="auth-dropdown">
+          <button type="button" id="orders-history-btn">🧾 Mis pedidos</button>
+          <button type="button" id="logout-btn">Cerrar sesión</button>
+        </div>
+      </div>
     </div>
+  </div>
+</header>
 
-    <form id="auth-form-login" class="auth-form">
-      <label class="field">
-        <span class="field-label">Correo</span>
-        <input type="email" name="email" required placeholder="tu@correo.com" autocomplete="email" />
-      </label>
-      <label class="field">
-        <span class="field-label">Contraseña</span>
-        <input type="password" name="password" required placeholder="••••••••" autocomplete="current-password" />
-      </label>
-      <button type="submit" class="btn btn-primary btn-block">Entrar</button>
-      <button type="button" id="btn-magic-link" class="btn btn-ghost btn-block">Enviar enlace mágico</button>
-    </form>
-
-    <form id="auth-form-signup" class="auth-form is-hidden">
-      <label class="field">
-        <span class="field-label">Correo</span>
-        <input type="email" name="email" required placeholder="tu@correo.com" autocomplete="email" />
-      </label>
-      <label class="field">
-        <span class="field-label">Contraseña</span>
-        <input type="password" name="password" required minlength="6" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
-      </label>
-      <button type="submit" class="btn btn-primary btn-block">Crear cuenta</button>
-    </form>
-
-    <p id="auth-message" class="auth-message"></p>
+<!-- ============ BUSCADOR (overlay para mobile y desktop) ============ -->
+<div class="search-overlay" id="search-overlay" aria-hidden="true">
+  <div class="search-panel">
+    <div class="search-top">
+      <button class="search-back" id="search-back-btn" type="button" aria-label="Volver">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      </button>
+      <div class="search-input-wrap">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" id="search-overlay-input" placeholder="Busca restaurantes o platos…" autocomplete="off">
+        <button class="search-clear" id="search-clear-btn" type="button" aria-label="Limpiar búsqueda" style="display:none;">✕</button>
+      </div>
+    </div>
+    <div class="search-body" id="search-body">
+      <div class="search-empty">Busca por nombre de restaurante o plato — por ejemplo "hamburguesa" o "sushi" 🔍</div>
+    </div>
   </div>
 </div>
 
-<!-- ============================ APLICACIÓN ============================ -->
-<div id="app" class="app is-hidden">
+<main id="top">
+<div id="view-home">
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="hero-section">
+    <div class="hero-copy">
+      <span class="eyebrow">Delivery en toda Pucallpa</span>
+      <h1>Tu antojo llega<br>antes que te <em>arrepientas</em>.</h1>
+      <p class="lede">Comida, súper, farmacia y más — Moshaco lo trae a tu puerta en minutos. Sin apps que pesen, sin contraseñas que olvidar.</p>
 
-  <!-- ---------- HEADER ---------- -->
-  <header class="app-header">
-    <div class="header-row header-row-top">
-      <div class="brand">
-        <span class="brand-mark">⌗</span>
-        <span class="brand-name">Bitácora</span>
+      <form class="quick-form" id="hero-quick-form">
+        <span class="cc">🇵🇪 +51</span>
+        <input type="tel" inputmode="numeric" placeholder="Tu número de celular" required>
+        <button class="btn btn-primary" type="submit">Empezar</button>
+      </form>
+      <div class="hint-row">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.7 14.3c-.2.7-1.4 1.3-2 1.4-.5.1-1.1.2-3.5-.7-2.9-1.1-4.8-4-5-4.2-.1-.2-1.2-1.6-1.2-3s.7-2.1 1-2.4c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5.2.5.7 1.7.8 1.9.1.2.1.3 0 .5-.1.2-.2.3-.4.5-.2.2-.4.4-.5.6-.2.2-.3.4-.1.7.2.3.9 1.4 1.9 2.3 1.3 1.2 2.4 1.5 2.7 1.7.3.2.5.1.7-.1.2-.2.8-.9 1-1.2.2-.3.4-.3.7-.2.3.1 1.6.8 1.9 1 .3.1.5.2.5.3.1.2.1.7-.1 1.4z"/></svg>
+        Te confirmamos por WhatsApp. Nada de contraseñas.
       </div>
 
-      <div class="header-selectors">
-        <select id="select-project" class="select select-project" aria-label="Proyecto activo"></select>
-        <button id="btn-new-project" class="btn btn-icon" title="Nuevo proyecto">+</button>
-
-        <div class="month-nav">
-          <button id="btn-prev-month" class="btn btn-icon" aria-label="Mes anterior">‹</button>
-          <span id="label-month" class="month-label">—</span>
-          <button id="btn-next-month" class="btn btn-icon" aria-label="Mes siguiente">›</button>
-        </div>
-      </div>
-
-      <div class="header-user">
-        <span id="label-user-email" class="user-email"></span>
-        <button id="btn-signout" class="btn btn-ghost btn-small">Salir</button>
+      <div class="trust-row">
+        <div class="trust-item"><strong>18 min</strong><span>tiempo promedio</span></div>
+        <div class="trust-item"><strong>+900</strong><span>locales aliados</span></div>
+        <div class="trust-item"><strong>4.9★</strong><span>calificación</span></div>
       </div>
     </div>
 
-    <div class="header-row header-row-stats">
-      <div class="stat-block">
-        <span class="stat-value" id="stat-percent">0%</span>
-        <span class="stat-label">avance del mes</span>
-      </div>
-      <div class="stat-block">
-        <span class="stat-value" id="stat-done">0</span>
-        <span class="stat-label">completadas</span>
-      </div>
-      <div class="stat-block">
-        <span class="stat-value" id="stat-pending">0</span>
-        <span class="stat-label">pendientes</span>
-      </div>
-      <div class="stat-chart-wrap">
-        <canvas id="chart-weekly" height="46"></canvas>
+    <div class="hero-visual">
+      <div class="road-scene">
+        <div class="scene-clip">
+          <div class="rider-shadow"></div>
+          <div class="puff p1"></div>
+          <div class="puff p2"></div>
+          <div class="rider-wrap">
+            <img src="assets/logo-light.png" alt="Repartidor Moshaco" id="hero-rider">
+          </div>
+          <div class="road"></div>
+        </div>
+        <div class="food-chip f1">🍔</div>
+        <div class="food-chip f2">🍕</div>
+        <div class="food-chip f3">🧋</div>
       </div>
     </div>
-  </header>
+  </section>
 
-  <!-- ---------- CUERPO: SIDEBAR + VISTAS ---------- -->
-  <div class="app-body">
+  <!-- ============ PROMO CAROUSEL ============ -->
+  <section class="promo reveal">
+    <div class="promo-carousel" id="promo-carousel">
+      <button class="promo-arrow prev" id="promo-prev" type="button" aria-label="Anterior">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <div class="promo-track" id="promo-track"></div>
+      <button class="promo-arrow next" id="promo-next" type="button" aria-label="Siguiente">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <div class="promo-dots" id="promo-dots"></div>
+    </div>
+  </section>
 
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <div class="sidebar-head">
-        <h2 class="sidebar-title">Funciones</h2>
-        <button id="btn-add-task" class="btn btn-icon" title="Añadir función/tarea">+</button>
+  <!-- ============ CATEGORIES ============ -->
+  <section class="categories reveal">
+    <h2 class="cat-title">¿Qué se te antoja hoy?</h2>
+    <div class="chip-nav">
+      <button class="chip-arrow" id="cat-prev" type="button" aria-label="Desplazar izquierda">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <div class="chip-row" id="chip-row">
+        <div class="chip active" data-cat="todos"><span class="emoji">🛵</span> Todos</div>
+        <div class="chip" data-cat="pizzas"><span class="emoji">🍕</span> Pizzas</div>
+        <div class="chip" data-cat="hamburguesas"><span class="emoji">🍔</span> Hamburguesas</div>
+        <div class="chip" data-cat="sushi"><span class="emoji">🍣</span> Sushi</div>
+        <div class="chip" data-cat="pollo"><span class="emoji">🍗</span> Pollo</div>
+        <div class="chip" data-cat="postres"><span class="emoji">🍰</span> Postres</div>
+        <div class="chip" data-cat="bebidas"><span class="emoji">🧋</span> Bebidas</div>
+        <div class="chip" data-cat="saludable"><span class="emoji">🥗</span> Saludable</div>
+        <div class="chip" data-cat="chifa"><span class="emoji">🥡</span> Chifa</div>
+        <div class="chip" data-cat="farmacia"><span class="emoji">💊</span> Farmacia</div>
+        <div class="chip" data-cat="super"><span class="emoji">🛒</span> Súper</div>
       </div>
+      <button class="chip-arrow" id="cat-next" type="button" aria-label="Desplazar derecha">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
 
-      <div class="sidebar-filters">
-        <select id="filter-category" class="select select-small" aria-label="Filtrar por categoría">
-          <option value="">Todas las categorías</option>
-        </select>
-        <select id="filter-status" class="select select-small" aria-label="Filtrar por estado">
-          <option value="">Todos los estados</option>
-          <option value="pendiente">Pendiente</option>
-          <option value="en_proceso">En proceso</option>
-          <option value="revision">Revisión</option>
-          <option value="hecho">Hecho</option>
-        </select>
+  <!-- ============ FEATURED ============ -->
+  <section class="featured reveal" id="featured">
+    <div class="section-head">
+      <h2>Lo más pedido en tu zona</h2>
+      <a class="see-all" href="#">Ver todos <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <div class="card-grid" id="restaurant-grid"></div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="how reveal">
+    <div class="section-head">
+      <h2>Pedir en Moshaco toma 3 pasos</h2>
+    </div>
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <h3>Ingresa tu número</h3>
+        <p>Nada de correos ni contraseñas. Te mandamos un código de confirmación directo a tu WhatsApp.</p>
       </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <h3>Elige y pide</h3>
+        <p>Restaurantes, súper o farmacia — arma tu pedido y págalo como prefieras.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <h3>Te lo llevamos</h3>
+        <p>Sigue tu pedido en vivo mientras nuestro repartidor acelera hacia tu puerta.</p>
+      </div>
+    </div>
+  </section>
 
-      <ul id="task-list" class="task-list"></ul>
-    </aside>
+  <!-- ============ CTA ============ -->
+  <section class="app-cta reveal">
+    <div class="cta-banner">
+      <div>
+        <h2>Tu primer pedido va con delivery gratis 🛵</h2>
+        <p>Regístrate con tu celular y recíbelo confirmando por WhatsApp. Así de simple.</p>
+      </div>
+      <div class="cta-actions">
+        <button class="btn btn-primary" id="open-auth-2" type="button">Crear cuenta</button>
+      </div>
+    </div>
+  </section>
+</div><!-- /view-home -->
 
-    <!-- VISTAS -->
-    <main class="views">
-
-      <!-- VISTA: MATRIZ -->
-      <section id="view-matrix" class="view is-active">
-        <div class="matrix-scroll">
-          <table id="matrix-table" class="matrix-table">
-            <thead>
-              <tr id="matrix-head-days"></tr>
-            </thead>
-            <tbody id="matrix-body"></tbody>
-          </table>
-        </div>
-        <p id="matrix-empty" class="empty-state is-hidden">
-          Añade tu primera función con el botón <strong>+</strong> del panel izquierdo para empezar a registrar avance.
-        </p>
-      </section>
-
-      <!-- VISTA: KANBAN -->
-      <section id="view-kanban" class="view">
-        <div class="kanban-board">
-          <div class="kanban-col" data-status="pendiente">
-            <h3 class="kanban-col-title">Pendiente</h3>
-            <div class="kanban-col-body" data-dropzone="pendiente"></div>
-          </div>
-          <div class="kanban-col" data-status="en_proceso">
-            <h3 class="kanban-col-title">En proceso</h3>
-            <div class="kanban-col-body" data-dropzone="en_proceso"></div>
-          </div>
-          <div class="kanban-col" data-status="revision">
-            <h3 class="kanban-col-title">Revisión</h3>
-            <div class="kanban-col-body" data-dropzone="revision"></div>
-          </div>
-          <div class="kanban-col" data-status="hecho">
-            <h3 class="kanban-col-title">Hecho</h3>
-            <div class="kanban-col-body" data-dropzone="hecho"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- VISTA: CONFIGURACIÓN -->
-      <section id="view-settings" class="view">
-        <div class="settings-panel">
-          <h2 class="settings-title">Proyectos</h2>
-          <p class="settings-hint">Administra tus proyectos. Los cambios se guardan directamente en Supabase.</p>
-          <ul id="settings-project-list" class="settings-project-list"></ul>
-
-          <h2 class="settings-title settings-title-spaced">Conexión</h2>
-          <p class="settings-hint">
-            Esta app usa Supabase para autenticación y datos. La URL y la clave anónima
-            se configuran en <code>app.js</code> (ver instrucciones de despliegue).
-          </p>
-        </div>
-      </section>
-
-    </main>
+<!-- ============ VISTA: MENÚ DEL RESTAURANTE (misma página, no modal) ============ -->
+<section id="view-menu" class="menu-page" style="display:none;">
+  <div class="mv-topbar">
+    <button class="mv-back" id="mv-back-btn" type="button">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>
+      Restaurantes
+    </button>
+    <h2 id="mv-rest-name"></h2>
   </div>
+  <div class="mv-rest-strip" id="mv-rest-strip"></div>
+  <div class="closed-banner" id="mv-closed-banner" style="display:none;"></div>
+  <div class="mv-cat-tabs" id="mv-cat-tabs"></div>
+  <div class="mv-dish-list" id="mv-dish-list"></div>
+</section>
 
-  <!-- ---------- NAV INFERIOR ---------- -->
-  <nav class="bottom-nav">
-    <button class="nav-btn is-active" data-view="matrix">
-      <span class="nav-icon">▦</span><span>Matriz</span>
+<!-- ============ VISTA: MIS DIRECCIONES (misma página, no modal) ============ -->
+<section id="view-addresses" class="addr-page" style="display:none;">
+  <div class="mv-topbar">
+    <button class="mv-back" id="addr-back-btn" type="button">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>
+      Volver
     </button>
-    <button class="nav-btn" data-view="kanban">
-      <span class="nav-icon">☰</span><span>Kanban</span>
-    </button>
-    <button class="nav-btn" data-view="settings">
-      <span class="nav-icon">⚙</span><span>Configuración</span>
-    </button>
-  </nav>
-</div>
+    <h2>Mis direcciones</h2>
+  </div>
+  <div class="addr-search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    <input type="text" id="addr-search-input" placeholder="Buscar dirección…">
+  </div>
+  <div class="addr-list" id="addr-list"></div>
+  <button class="btn btn-primary" id="addr-add-btn" type="button" style="width:100%;">Agregar dirección</button>
+</section>
 
-<!-- ============================ MODALES ============================ -->
+<!-- ============ VISTA: HISTORIAL DE PEDIDOS (misma página) ============ -->
+<section id="view-orders" class="addr-page" style="display:none;">
+  <div class="mv-topbar">
+    <button class="mv-back" id="orders-back-btn" type="button">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>
+      Volver
+    </button>
+    <h2>Mis pedidos</h2>
+  </div>
+  <div class="orders-list" id="orders-list"></div>
+</section>
 
-<!-- Modal: nuevo proyecto -->
-<div id="modal-project" class="modal-overlay is-hidden">
+<!-- ============ VISTA: CONFIRMAR DIRECCIÓN (mapa real, misma página) ============ -->
+<section id="view-map-confirm" class="map-page" style="display:none;">
+  <div class="mv-topbar">
+    <button class="mv-back" id="map-back-btn" type="button">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 6l-6 6 6 6"/></svg>
+      Volver
+    </button>
+    <h2>Confirmar dirección</h2>
+  </div>
+  <div class="map-shell">
+    <div id="confirm-map"></div>
+    <div class="map-pin-fixed">📍</div>
+    <button class="map-locate-btn" id="map-locate-btn" type="button" aria-label="Usar mi ubicación">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+    </button>
+  </div>
+  <div class="map-confirm-card">
+    <div class="mc-head">
+      <div class="mc-icon">📍</div>
+      <div>
+        <h4>Confirma tu ubicación</h4>
+        <p>Mueve el mapa para que el pin quede justo en el lugar correcto.</p>
+      </div>
+    </div>
+    <div class="mc-divider"></div>
+    <div class="mc-city">Pucallpa</div>
+    <p class="mc-address" id="confirm-address-text">Ubicando…</p>
+
+    <div class="mc-divider"></div>
+    <label class="mc-label" for="confirm-address-note">Dirección aproximada (opcional)</label>
+    <div class="field mc-field">
+      <input type="text" id="confirm-address-note" placeholder="Ej: Jr. 7 de Junio 343" autocomplete="off">
+      <button type="button" id="confirm-address-search-btn" class="mc-search-btn" aria-label="Buscar esta dirección en el mapa">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      </button>
+    </div>
+    <p class="mc-search-status" id="confirm-address-search-status"></p>
+    <label class="mc-label" for="confirm-reference">Referencia para ubicarte mejor (opcional)</label>
+    <div class="field mc-field">
+      <input type="text" id="confirm-reference" placeholder="Ej: Frente a la comisaría de San Fernando" autocomplete="off">
+    </div>
+    <p class="mc-hint">Escribe tu dirección y toca la lupa 🔍 para que el mapa se ubique ahí solo. Si no cae exacto, arrastra el mapa hasta tu casa.</p>
+  </div>
+  <button class="btn btn-primary" id="confirm-address-btn" type="button" style="width:100%; margin-top:16px;">Continuar</button>
+</section>
+</main>
+
+
+<!-- ============ FOOTER ============ -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a href="#top" class="brand">
+        <img class="footer-logo" src="assets/logo-light.png" alt="Moshaco" height="36">
+        <span class="brand-word">Moto<span>Moto</span></span>
+      </a>
+      <p>Tu plataforma de delivery favorita. Comida, súper y más, directo a tu puerta, sin vueltas.</p>
+      <div class="footer-contact">
+        <span>📍 Pucallpa, Ucayali, Perú</span>
+        <span>💬 +51 982 780 329 (WhatsApp)</span>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Empresa</h4>
+      <ul>
+        <li><a href="#">Sobre nosotros</a></li>
+        <li><a href="#">Trabaja con nosotros</a></li>
+        <li><a href="#">Prensa</a></li>
+        <li><a href="#">Blog</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Ayuda</h4>
+      <ul>
+        <li><a href="#">Centro de ayuda</a></li>
+        <li><a href="#">Términos y condiciones</a></li>
+        <li><a href="#">Privacidad</a></li>
+        <li><a href="#">Contacto</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 Moshaco. Todos los derechos reservados.</span>
+    <div class="footer-social">
+      <a class="icon-btn" href="#" aria-label="WhatsApp">💬</a>
+      <a class="icon-btn" href="#" aria-label="Instagram">📷</a>
+      <a class="icon-btn" href="#" aria-label="Facebook">👍</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ AUTH MODAL ============ -->
+<div class="modal-backdrop" id="auth-backdrop">
   <div class="modal">
-    <h3 class="modal-title">Nuevo proyecto</h3>
-    <form id="form-new-project">
-      <label class="field">
-        <span class="field-label">Título</span>
-        <input type="text" name="title" required placeholder="Ej: App de Facturación" />
-      </label>
-      <label class="field">
-        <span class="field-label">Descripción (opcional)</span>
-        <input type="text" name="description" placeholder="Breve descripción" />
-      </label>
-      <label class="field">
-        <span class="field-label">Color de acento</span>
-        <input type="color" name="color" value="#4C9FE8" />
-      </label>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
-        <button type="submit" class="btn btn-primary">Crear proyecto</button>
+    <button class="modal-close" id="modal-close" aria-label="Cerrar">✕</button>
+
+    <!-- STEP 1: phone -->
+    <div class="modal-step active" id="step-phone">
+      <div class="modal-icon">📱</div>
+      <h3>Ingresa con tu celular</h3>
+      <p class="sub">Te enviaremos un código de 6 dígitos por WhatsApp para confirmar que eres tú.</p>
+      <div class="field">
+        <input type="text" id="name-input" placeholder="Tu nombre" autocomplete="name">
       </div>
-    </form>
+      <div class="form-msg" id="name-error" style="color:#e0553d;">Escribe tu nombre para que podamos contactarte.</div>
+      <div class="field">
+        <span class="cc">🇵🇪 +51</span>
+        <input type="tel" inputmode="numeric" id="phone-input" placeholder="987 654 321" maxlength="9">
+      </div>
+      <div class="form-msg" id="phone-error" style="color:#e0553d;">Escribe un número válido de 9 dígitos.</div>
+      <button class="btn btn-primary" id="send-code-btn" type="button">Enviar código por WhatsApp</button>
+    </div>
+
+    <!-- STEP 2: otp -->
+    <div class="modal-step" id="step-otp">
+      <div class="modal-icon">💬</div>
+      <h3>Confirma el código</h3>
+      <p class="sub">Lo enviamos por WhatsApp al <strong id="otp-phone-display">+51 987 654 321</strong>.</p>
+      <div class="otp-row">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-box">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-box">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-box">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-box">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-box">
+        <input type="text" inputmode="numeric" maxlength="1" class="otp-box">
+      </div>
+      <div class="form-msg show" id="otp-msg" style="color:var(--whatsapp);">✓ Código enviado por WhatsApp.</div>
+      <div class="form-msg" id="otp-error" style="color:#e0553d;">Código incorrecto. Revisa el mensaje de WhatsApp e intenta de nuevo.</div>
+      <button class="btn btn-primary" id="verify-code-btn" type="button">Confirmar y entrar</button>
+      <p class="resend">¿No llegó? <button id="resend-btn" type="button">Reenviar en <span id="resend-timer">30</span>s</button></p>
+    </div>
+
+    <!-- STEP 3: success -->
+    <div class="modal-step" id="step-success">
+      <div class="modal-icon">🎉</div>
+      <h3>¡Listo, ya estás dentro!</h3>
+      <p class="sub">Tu cuenta quedó confirmada. Ahora sí, a pedir.</p>
+      <button class="btn btn-primary" id="finish-btn" type="button">Empezar a pedir</button>
+    </div>
   </div>
 </div>
 
-<!-- Modal: nueva tarea -->
-<div id="modal-task" class="modal-overlay is-hidden">
-  <div class="modal">
-    <h3 class="modal-title">Nueva función / tarea</h3>
-    <form id="form-new-task">
-      <label class="field">
-        <span class="field-label">Título</span>
-        <input type="text" name="title" required placeholder="Ej: Módulo de Pagos" />
-      </label>
-      <label class="field">
-        <span class="field-label">Categoría</span>
-        <input type="text" name="category" list="category-suggestions" placeholder="Ej: API Supabase" />
-        <datalist id="category-suggestions"></datalist>
-      </label>
-      <label class="field">
-        <span class="field-label">Fecha objetivo (opcional)</span>
-        <input type="date" name="target_date" />
-      </label>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" data-close-modal>Cancelar</button>
-        <button type="submit" class="btn btn-primary">Añadir función</button>
-      </div>
-    </form>
+<!-- ============ MODAL DE UBICACIÓN (aparece al entrar) ============ -->
+<div class="modal-backdrop" id="loc-backdrop">
+  <div class="modal" style="text-align:center;">
+    <button class="modal-close" id="loc-close" aria-label="Cerrar">✕</button>
+    <div class="modal-icon" style="margin-left:auto; margin-right:auto;">📍</div>
+    <h3>Detecta tu dirección</h3>
+    <p class="sub">Usaremos tu ubicación para calcular el envío exacto a cada restaurante: <strong>S/ 3.00 por km</strong>, con un mínimo de <strong>S/ 6.00</strong>.</p>
+    <button class="btn btn-primary" id="loc-detect-btn" type="button" style="width:100%; margin-bottom:10px;">Detectar con mi ubicación actual</button>
+    <button class="btn btn-outline" id="loc-skip-btn" type="button" style="width:100%;">Ingresar después</button>
+    <p id="loc-status" style="min-height:16px; font-size:.76rem; color:var(--text-soft); margin:12px 0 0;"></p>
   </div>
 </div>
 
-<div id="toast" class="toast is-hidden"></div>
+<!-- ============ PERSONALIZA TU PLATO (opciones obligatorias/opcionales) ============ -->
+<div class="modal-backdrop" id="options-backdrop">
+  <div class="modal modal-lg">
+    <div class="sheet-head">
+      <button class="modal-close" id="options-close" aria-label="Cerrar">✕</button>
+      <h3 id="options-dish-name" style="margin:0;">Personaliza tu plato</h3>
+    </div>
+    <div class="sheet-body" id="options-body"></div>
+    <div class="sheet-foot" id="options-foot"></div>
+  </div>
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
-<script src="app.js" defer></script>
+<!-- ============ CARRITO ============ -->
+<div class="modal-backdrop" id="cart-backdrop">
+  <div class="modal modal-lg">
+    <div class="sheet-head">
+      <button class="modal-close" id="cart-close" aria-label="Cerrar">✕</button>
+      <h3 style="margin:0;">Mi pedido</h3>
+    </div>
+    <div class="sheet-body" id="cart-body"></div>
+    <div class="sheet-foot" id="cart-foot"></div>
+  </div>
+</div>
+
+<!-- Datos (reemplazables por llamadas a un backend real) -->
+<script src="js/data/promos.js"></script>
+<script src="js/data/restaurants.js"></script>
+<script src="js/business-hours.js"></script>
+
+<!-- Módulos de la app, en el orden en que se necesitan -->
+<script src="js/theme.js"></script>
+<script src="js/scroll-reveal.js"></script>
+<script src="js/promo-carousel.js"></script>
+<script src="js/categories.js"></script>
+<script src="js/delivery.js"></script>
+<script src="js/cart-core.js"></script>
+<script src="js/views.js"></script>
+<script src="js/dish-options.js"></script>
+<script src="js/search.js"></script>
+<script src="js/addresses.js"></script>
+<script src="js/geocoding.js"></script>
+<script src="js/map-confirm.js"></script>
+<script src="js/cart-modal.js"></script>
+<script src="js/whatsapp-order.js"></script>
+<script src="js/order-history.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/session.js"></script>
+<script src="js/location-modal.js"></script>
 </body>
 </html>

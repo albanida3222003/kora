@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propuesta de Proyecto - Plataforma Web de Delivery Multilocal</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --primary-dark: #0f172a;
+            --brand-primary: #2563eb;
+            --brand-soft: #eff6ff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --accent-teal: #0d9488;
+            --accent-amber: #d97706;
+            --shadow-subtle: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+            --radius-lg: 16px;
+            --radius-md: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        /* Container Principal */
+        .presentation-container {
+            width: 100%;
+            max-width: 960px;
+            min-height: 620px;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Diapositivas */
+        .slide {
+            display: none;
+            padding: 44px 48px;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            gap: 24px;
+            animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Tipografía Profesional */
+        .slide-subtitle {
+            font-size: 0.825rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+            color: var(--brand-primary);
+            margin-bottom: -16px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.15rem;
+            font-weight: 650;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        p, li {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        ul.styled-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+        }
+
+        ul.styled-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--brand-primary);
+            font-weight: bold;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        strong {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* Layouts Flexibles */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background-color: #fafafa;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .card-highlight {
+            background-color: var(--brand-soft);
+            border-color: #bfdbfe;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .badge-blue { background-color: #dbeafe; color: #1e40af; }
+        .badge-amber { background-color: #fef3c7; color: #92400e; }
+        .badge-teal { background-color: #ccfbf1; color: #115e59; }
+
+        /* Cuadro de Fórmula / Lógica */
+        .logic-box {
+            background-color: var(--primary-dark);
+            color: #f8fafc;
+            padding: 18px 24px;
+            border-radius: var(--radius-md);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .logic-box span {
+            color: #38bdf8;
+        }
+
+        /* Tabla de Costos Limpia */
+        .clean-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin-top: 8px;
+        }
+
+        .clean-table th, .clean-table td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .clean-table th {
+            color: var(--primary-dark);
+            font-weight: 600;
+            background-color: #f1f5f9;
+        }
+
+        /* Modulo Scope Tag */
+        .scope-tag {
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        .scope-included { background-color: #dcfce7; color: #166534; }
+        .scope-optional { background-color: #feefc3; color: #854d0e; }
+
+        /* Botones y Navegación */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 48px;
+            background-color: #ffffff;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+
+        .btn {
+            background-color: var(--brand-primary);
+            color: #ffffff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn:disabled {
+            background-color: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .slide-counter {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .slide { padding: 24px; }
+            .controls { padding: 16px 24px; }
+            .grid-2 { grid-template-columns: 1fr; }
+            h1 { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="presentation-container">
+        
+        <!-- Diapositiva 1: Portada Comercial -->
+        <div class="slide active" id="slide1">
+            <span class="slide-subtitle">Propuesta Técnica y Económica</span>
+            <h1>Desarrollo de Plataforma Web para Delivery Multilocal</h1>
+            <p>Diseño de arquitectura escalable, estimación de costos operativos y hoja de ruta para implementación web.</p>
+            
+            <div class="grid-2" style="margin-top: 8px;">
+                <div class="card card-highlight">
+                    <h2>🎯 Objetivo General</h2>
+                    <p>Construir una solución digital rápida y liviana para la recepción de pedidos, cálculo dinámico de fletes y gestión multilocal sin comisiones por transacción.</p>
+                </div>
+                <div class="card">
+                    <h2>📦 Entregable Base</h2>
+                    <p>Web cliente optimizada para dispositivos móviles, catálogo dinámico de productos, integración con mapa y backend en la nube sin costo inicial.</p>
+                </div>
+            </div>
+            
+            <p style="margin-top: auto; font-size: 0.85rem; color: var(--text-muted);">
+                Presione <strong>Siguiente</strong> para explorar el alcance detallado del sistema.
+            </p>
+        </div>
+
+        <!-- Diapositiva 2: Definición de Alcance Cliente y Restaurante -->
+        <div class="slide" id="slide2">
+            <span class="slide-subtitle">Especificaciones del Sistema</span>
+            <h1>Estructura de Datos y Modelado de Negocio</h1>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <h2>👤 Experiencia del Cliente</h2>
+                    <p style="margin-bottom: 12px;">Captura eficiente de datos esenciales para evitar fricción en la compra:</p>
+                    <ul class="styled-list">
+                        <li><strong>Datos Personales:</strong> Nombre completo y número de celular.</li>
+                        <li><strong>Ubicación Exacta:</strong> Captura por GPS o selección directa en mapa.</li>
+                        <li><strong>Carrito Inteligente:</strong> Agrupación automática de ítems por restaurante.</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2>🏪 Perfil del Restaurante</h2>
+                    <p style="margin-bottom: 12px;">Gestión completa del establecimiento y su oferta:</p>
+                    <ul class="styled-list">
+                        <li><strong>Información Base:</strong> Nombre, WhatsApp, ubicación fija en mapa y horario semanal.</li>
+                        <li><strong>Identidad Visual:</strong> Espacio para Logotipo y Banner de Portada.</li>
+                        <li><strong>Catálogo Visual:</strong> Cada plato incluye imagen representativa.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🍽️ Modalidades de Productos (Platos)</h2>
+                <ul class="styled-list">
+                    <li><strong>Plato Estándar (Simple):</strong> Selección directa sin variantes (ej. Pollo Broaster, Bebida 1L).</li>
+                    <li><strong>Plato Configurable (Menús/Combos):</strong> Campos obligatorios de selección simple/múltiple antes de añadir al carrito (ej. Elección obligatoria de Entrada A o B, o Elección de Salsa para Alitas: Acevichada, Rebozada, etc.).</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Diapositiva 3: Lógica Tarifaria y Delivery -->
+        <div class="slide" id="slide3">
+            <span class="slide-subtitle">Reglas de Negocio</span>
+            <h1>Cálculo Dinámico del Costo de Envío</h1>
+            <p>Cálculo de tarifas basado en la distancia lineal real (coordenadas) entre la ubicación del cliente y el restaurante.</p>
+            
+            <div class="logic-box">
+                // Fórmula Algorítmica de Tarifa:<br>
+                Distancia_KM = CalcularDistancia(Cliente_GPS, Restaurante_GPS);<br>
+                Costo_Calculado = (Distancia_KM * <span>S/ 2.00</span>) + <span>S/ 1.00</span>;<br>
+                <strong>Envío_Final = Math.max(<span>S/ 5.00</span>, Costo_Calculado);</strong>
+            </div>
+
+            <div class="card card-highlight">
+                <h2>🛍️ Manejo de Pedidos Multilocal (Múltiples Restaurantes)</h2>
+                <p>Si el usuario realiza un pedido que incluye platos de <strong>diferentes locales</strong> en una misma compra:</p>
+                <ul class="styled-list" style="margin-top: 8px;">
+                    <li>El sistema aplica el cálculo tarifario de forma <strong>individual e independiente</strong> para cada local involucrado.</li>
+                    <li><strong>Costo Envío Total = (Tarifa Envío Local A) + (Tarifa Envío Local B)</strong></li>
+                    <li>Garantiza la rentabilidad del repartidor cubriendo la logística de recojo por separado.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Diapositiva 4: Stack Tecnológico -->
+        <div class="slide" id="slide4">
+            <span class="slide-subtitle">Arquitectura y Herramientas</span>
+            <h1>Tecnologías Seleccionadas y Justificación</h1>
+            
+            <div class="grid-2">
+                <div class="card">
+                    <span class="badge badge-blue">FRONTEND WEB</span>
+                    <h2>HTML5 / CSS3 / JavaScript</h2>
+                    <ul class="styled-list" style="margin-top: 8px;">
+                        <li><strong>Rendimiento Máximo:</strong> Carga ultra rápida en teléfonos móviles sin depender de descargas en App Stores.</li>
+                        <li><strong>Sin Mantenimiento Complejo:</strong> Código limpio, compatible con cualquier navegador moderno.</li>
+                        <li><strong>GitHub Pages:</strong> Alojamiento estático totalmente <strong>gratuito y seguro (SSL)</strong> con disponibilidad del 99.9%.</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <span class="badge badge-teal">BACKEND & BASE DE DATOS</span>
+                    <h2>Supabase (Cloud Service)</h2>
+                    <ul class="styled-list" style="margin-top: 8px;">
+                        <li><strong>Base de Datos Relacional:</strong> Almacenamiento seguro de platos, restaurantes, usuarios y pedidos.</li>
+                        <li><strong>Suscripción en Tiempo Real:</strong> Notificaciones inmediatas de nuevos pedidos sin recargar la pantalla.</li>
+                        <li><strong>Storage Integrado:</strong> Alojamiento optimizado de imágenes (Logos, Portadas y Fotos de Platos).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diapositiva 5: Análisis de Infraestructura y Costos a Futuro -->
+        <div class="slide" id="slide5">
+            <span class="slide-subtitle">Costos Operativos</span>
+            <h1>Infraestructura, Dominios y Escalabilidad</h1>
+            <p>Proyección clara de costos de mantención para garantizar que el sistema opere con costo S/ 0.00 en sus inicios.</p>
+
+            <table class="clean-table">
+                <thead>
+                    <tr>
+                        <th>Concepto</th>
+                        <th>Proveedor / Límite Gratuito</th>
+                        <th>Costo Inicial</th>
+                        <th>Costo al Escalar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Hosting Web</strong></td>
+                        <td>GitHub Pages (Ilimitado)</td>
+                        <td>S/ 0.00 / mes</td>
+                        <td>S/ 0.00 / mes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Base de Datos y API</strong></td>
+                        <td>Supabase (Hasta 500MB de datos / 50k usuarios)</td>
+                        <td>S/ 0.00 / mes</td>
+                        <td>~$25 USD/mes (Si se supera el límite)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Almacenamiento Fotos</strong></td>
+                        <td>Supabase Storage (Hasta 1 GB en imágenes)</td>
+                        <td>S/ 0.00 / mes</td>
+                        <td>Incluido en Plan Pro de Supabase</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dominio Web (.com)</strong></td>
+                        <td>Proveedor de Dominios (Namecheap / GoDaddy)</td>
+                        <td>—</td>
+                        <td>~$12.00 - $15.00 USD / año</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="card" style="margin-top: 10px;">
+                <p>📌 <strong>Conclusión de Infraestructura:</strong> La plataforma puede operar <strong>totalmente gratis</strong> durante su etapa de lanzamiento. Solo se requiere la compra del dominio (.com o .pe) si el cliente desea una dirección web personalizada.</p>
+            </div>
+        </div>
+
+        <!-- Diapositiva 6: Desglose Presupuestal y Extensiones Opcionales -->
+        <div class="slide" id="slide6">
+            <span class="slide-subtitle">Propuesta Económica</span>
+            <h1>Desglose de Proyecto y Opciones Adicionales</h1>
+
+            <div class="card card-highlight">
+                <div style="display: flex; align-items: center;">
+                    <h2>Proyecto Base Acordado</h2>
+                    <span class="scope-tag scope-included">S/ 500.00 PEN</span>
+                </div>
+                <p style="margin-top: 6px;">Incluye la Web del Cliente final, catálogo interactivo multilocal, integración de cálculo de delivery por distancia, gestión de menús con opciones obligatorias, envío de pedidos directos y backend configurado en Supabase + GitHub Pages.</p>
+            </div>
+
+            <h2 style="margin-top: 10px;">Módulos Adicionales (Propuesta Complementaria)</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                        <span class="badge badge-amber" style="margin: 0;">MÓDULO B</span>
+                        <span class="scope-tag scope-optional">+ S/ 300.00 PEN</span>
+                    </div>
+                    <h2>App / Web para Locales</h2>
+                    <p>Panel exclusivo para que cada restaurante reciba avisos de pedidos en tiempo real, acepte/rechace compras y asigne el tiempo estimado de preparación.</p>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                        <span class="badge badge-amber" style="margin: 0;">MÓDULO C</span>
+                        <span class="scope-tag scope-optional">+ S/ 250.00 PEN</span>
+                    </div>
+                    <h2>Dashboard Administrador</h2>
+                    <p>Panel de control centralizado para que el dueño de la plataforma pueda registrar nuevos locales, editar precios, gestionar categorías y ver métricas globales.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navegación Inferior -->
+        <div class="controls">
+            <button class="btn" id="prevBtn" onclick="changeSlide(-1)" disabled>Anterior</button>
+            <span class="slide-counter" id="slideCounter">Página 1 de 6</span>
+            <button class="btn" id="nextBtn" onclick="changeSlide(1)">Siguiente</button>
+        </div>
+
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 6;
+
+        function updateSlide() {
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+
+            document.getElementById(`slide${currentSlide}`).classList.add('active');
+            document.getElementById('slideCounter').textContent = `Página ${currentSlide} de ${totalSlides}`;
+
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+        }
+
+        function changeSlide(direction) {
+            currentSlide += direction;
+            if (currentSlide < 1) currentSlide = 1;
+            if (currentSlide > totalSlides) currentSlide = totalSlides;
+            updateSlide();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                if (currentSlide < totalSlides) changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                if (currentSlide > 1) changeSlide(-1);
+            }
+        });
+    </script>
+</body>
+</html>

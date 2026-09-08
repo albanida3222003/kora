@@ -1,91 +1,66 @@
-# Bitácora — Project Task & Feature Tracker
+# Moshaco 🐒
 
-SPA en HTML/CSS/JS vanilla + Supabase, pensada para desplegarse en GitHub Pages.
+Landing + demo funcional de una app de delivery (comida, súper, farmacia) para Pucallpa, Perú. Sitio 100% estático (HTML/CSS/JS puro, sin frameworks ni build step), listo para publicarse en **GitHub Pages**.
 
-## Archivos
+## Estructura del proyecto
 
-| Archivo | Contenido |
-|---|---|
-| `schema.sql` | DDL de `projects`, `tasks`, `task_logs`, índices y políticas RLS |
-| `index.html` | Estructura: login, header, sidebar, vista Matriz, Kanban, Configuración |
-| `style.css` | Identidad visual (tema "mesa de dibujo técnico": tinta azul, acentos dorado/azul/coral) |
-| `app.js` | Cliente Supabase, autenticación, CRUD, render de la matriz/Kanban/gráfico |
-
-## 1. Configurar Supabase
-
-1. Crea un proyecto en [supabase.com](https://supabase.com).
-2. Ve a **SQL Editor → New query**, pega el contenido de `schema.sql` completo y ejecútalo.
-3. Ve a **Authentication → Providers → Email** y actívalo (puedes desactivar "Confirm email" mientras pruebas, para entrar de inmediato tras registrarte).
-4. Ve a **Project Settings → API** y copia:
-   - **Project URL** → es tu `SUPABASE_URL`
-   - **anon public key** → es tu `SUPABASE_ANON_KEY`
-
-## 2. Configurar las credenciales en el cliente
-
-Este es el punto donde más dudas surgen con GitHub Pages, así que va con calma:
-
-**GitHub Pages sirve archivos estáticos.** No existe un "servidor" que pueda ocultar variables de entorno en tiempo de ejecución — todo lo que llega al navegador es público, sin importar el método que uses. Por eso Supabase diseñó la `anon key` para ser expuesta: no da acceso a nada por sí sola, solo identifica tu proyecto. El acceso real a los datos lo controla **Row Level Security** (ya configurado en `schema.sql`), que solo deja a cada usuario ver y modificar sus propias filas. Poner la `anon key` en `app.js` es la práctica estándar y segura para este tipo de despliegue.
-
-Lo que **nunca** debes exponer es la **service_role key** (esa sí salta todas las políticas RLS) — no la uses en este proyecto en absoluto.
-
-### Opción A — Directo en `app.js` (la más simple)
-
-Abre `app.js` y reemplaza las dos primeras constantes:
-
-```js
-const SUPABASE_URL = 'https://tu-proyecto.supabase.co';
-const SUPABASE_ANON_KEY = 'tu-clave-anon-publica';
+```
+moshaco/
+├── index.html              # Única página (single-page app, sin backend)
+├── css/
+│   └── styles.css          # Todos los estilos
+├── js/
+│   ├── data/
+│   │   ├── promos.js       # Datos del carrusel de promociones
+│   │   └── restaurants.js  # Datos de restaurantes y platos
+│   ├── theme.js             # Tema claro/oscuro
+│   ├── scroll-reveal.js     # Animaciones al hacer scroll
+│   ├── promo-carousel.js    # Carrusel de promociones
+│   ├── categories.js        # Chips de categorías
+│   ├── delivery.js          # Cálculo de envío + grilla de restaurantes
+│   ├── cart-core.js         # Estado del carrito (cantidades, totales)
+│   ├── views.js             # Cambio de vistas (home / menú / etc.)
+│   ├── dish-options.js      # Modal "Personaliza tu plato"
+│   ├── search.js            # Buscador (overlay mobile/desktop)
+│   ├── addresses.js         # Vista "Mis direcciones"
+│   ├── geocoding.js         # Búsqueda de direcciones con reintento
+│   ├── map-confirm.js       # Confirmar dirección con mapa (Leaflet)
+│   ├── cart-modal.js        # Modal del carrito
+│   ├── whatsapp-order.js    # Envío del pedido por WhatsApp
+│   ├── order-history.js     # Historial de pedidos (localStorage)
+│   ├── auth.js               # Login por celular + código OTP
+│   └── session.js            # Sesión persistente + modal de ubicación
+└── assets/
+    ├── logo-light.png
+    └── logo-dark.png
 ```
 
-Guarda, haz commit y despliega. Listo.
+El proyecto **no usa módulos ES ni bundler**: cada archivo JS se carga con una etiqueta `<script>` normal, en un orden pensado a propósito (primero los datos, luego cada módulo). Todos comparten el mismo scope global del navegador, tal como funcionaba el `script.js` original — solo que ahora cada responsabilidad vive en su propio archivo, en vez de un solo archivo de ~2000 líneas.
 
-### Opción B — Inyectar los valores en el build con GitHub Actions
+Esto significa que **no hace falta ningún paso de compilación**: se puede abrir `index.html` directamente o subir la carpeta tal cual a cualquier hosting estático.
 
-Si prefieres no dejar las claves "a la vista" en el historial de commits (aunque sean públicas por diseño), puedes inyectarlas durante el despliegue usando **GitHub Actions Secrets**:
+## Cómo publicarlo en GitHub Pages
 
-1. En tu repositorio: **Settings → Secrets and variables → Actions → New repository secret**. Crea `SUPABASE_URL` y `SUPABASE_ANON_KEY`.
-2. Deja en `app.js` un marcador de posición, por ejemplo `__SUPABASE_URL__` y `__SUPABASE_ANON_KEY__`, en vez de los valores reales.
-3. Añade `.github/workflows/deploy.yml` con un paso que sustituya los marcadores antes de publicar:
+1. Crea un repositorio en GitHub y sube el contenido de esta carpeta a la rama `main`.
+2. Entra a **Settings → Pages** del repositorio.
+3. En "Build and deployment" elige **Deploy from a branch**, selecciona la rama `main` y la carpeta `/ (root)`.
+4. Guarda. En un par de minutos el sitio queda publicado en `https://<tu-usuario>.github.io/<tu-repo>/`.
 
-```yaml
-name: Deploy to GitHub Pages
-on:
-  push:
-    branches: [main]
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Inyectar variables de Supabase
-        run: |
-          sed -i "s|__SUPABASE_URL__|${{ secrets.SUPABASE_URL }}|g" app.js
-          sed -i "s|__SUPABASE_ANON_KEY__|${{ secrets.SUPABASE_ANON_KEY }}|g" app.js
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-      - uses: actions/deploy-pages@v4
-```
+El archivo `.nojekyll` incluido evita que GitHub Pages procese el sitio con Jekyll (no lo necesita, es HTML/CSS/JS puro), lo que hace el despliegue más rápido y evita conflictos con archivos/carpetas que empiecen con `_`.
 
-Con esto los valores nunca aparecen en tu rama `main`, solo en el artefacto publicado — aunque, de nuevo, siguen siendo visibles para cualquiera que inspeccione el sitio publicado, porque así funciona cualquier app 100% frontend.
+## Datos de ejemplo
 
-## 3. Publicar en GitHub Pages
-
-1. Sube `index.html`, `style.css` y `app.js` a la raíz de tu repositorio (o a `/docs` si prefieres esa carpeta).
-2. **Settings → Pages → Source**: elige la rama y carpeta donde están los archivos.
-3. Espera 1–2 minutos y tu app quedará disponible en `https://tu-usuario.github.io/tu-repo/`.
-
-## 4. Primer uso
-
-1. Abre la app, pestaña **Crear cuenta**, regístrate con correo y contraseña (o usa el enlace mágico).
-2. Crea tu primer proyecto con el botón **+** junto al selector de proyecto.
-3. Añade funciones/tareas desde el botón **+** del panel izquierdo.
-4. Haz clic en las celdas de la matriz para marcar avance diario — el porcentaje y el gráfico superior se recalculan al instante.
-5. Cambia a la vista **Kanban** para mover tareas entre estados arrastrando las tarjetas.
+`js/data/restaurants.js` y `js/data/promos.js` contienen datos de ejemplo (restaurantes, platos, promociones) pensados para reemplazarse por una llamada real a un backend (por ejemplo Supabase, como sugieren los comentarios dentro de esos archivos).
 
 ## Notas técnicas
 
-- Sin frameworks: JS vanilla + `@supabase/supabase-js` v2 y `Chart.js` vía CDN.
-- Las lecturas de `task_logs` se filtran por mes visible para mantener las consultas ligeras; cambiar de mes dispara una nueva consulta.
-- Los checkboxes de la matriz actualizan el estado local de forma optimista y revierten si Supabase devuelve un error.
-- El scroll horizontal de la matriz es nativo (`overflow:auto`), funciona con gesto táctil en móvil sin JS adicional.
+- El mapa de confirmación de dirección usa **Leaflet** + tiles de OpenStreetMap (vía CDN, no requiere API key).
+- El pedido final se envía por **WhatsApp** (`js/whatsapp-order.js`) armando un mensaje con el detalle completo del carrito.
+- El login es una simulación de OTP por WhatsApp (no envía SMS/WhatsApp real); la sesión y el historial de pedidos se guardan en `localStorage` del navegador.
+- Las imágenes de platos/restaurantes se cargan desde Unsplash vía URL — para producción conviene alojarlas junto con el resto de los `assets/`.
+
+## Próximas mejoras sugeridas
+
+- Optimizar y comprimir `assets/logo-light.png` / `logo-dark.png` (pesan más de lo necesario para un logo).
+- Reemplazar los datos de ejemplo por una API/backend real.
+- Agregar un manifest (`site.webmanifest`) e íconos en varios tamaños si se quiere que funcione como PWA instalable.
