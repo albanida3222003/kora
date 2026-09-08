@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cronograma de Desarrollo - Plataforma de Delivery Multilocal</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --primary-dark: #0f172a;
+            --brand-primary: #2563eb;
+            --brand-soft: #eff6ff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --accent-teal: #0d9488;
+            --accent-amber: #d97706;
+            --shadow-subtle: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+            --radius-lg: 16px;
+            --radius-md: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .presentation-container {
+            width: 100%;
+            max-width: 980px;
+            min-height: 640px;
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            display: none;
+            padding: 44px 48px;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            gap: 18px;
+            animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-y: auto;
+        }
+
+        .slide.active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .slide-subtitle {
+            font-size: 0.825rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+            color: var(--brand-primary);
+            margin-bottom: -8px;
+        }
+
+        h1 {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            font-weight: 650;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        p, li {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            line-height: 1.55;
+        }
+
+        ul { list-style: none; }
+
+        ul.styled-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+        }
+
+        ul.styled-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--brand-primary);
+            font-weight: bold;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        strong { color: var(--text-main); font-weight: 600; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+        .card {
+            background-color: #fafafa;
+            padding: 18px 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .card-highlight { background-color: var(--brand-soft); border-color: #bfdbfe; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .badge-blue { background-color: #dbeafe; color: #1e40af; }
+        .badge-amber { background-color: #fef3c7; color: #92400e; }
+        .badge-teal { background-color: #ccfbf1; color: #115e59; }
+        .badge-green { background-color: #dcfce7; color: #166534; }
+
+        /* Pagos */
+        .payment-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 4px; }
+        .payment-card {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            text-align: center;
+        }
+        .payment-card .amount {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 6px 0 4px;
+        }
+        .payment-card .label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 700;
+            color: var(--brand-primary);
+        }
+        .payment-card .desc { font-size: 0.82rem; color: var(--text-muted); }
+        .payment-total {
+            margin-top: 6px;
+            background: var(--primary-dark);
+            color: #f8fafc;
+            border-radius: var(--radius-md);
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+        .payment-total .big { font-size: 1.3rem; font-weight: 700; color: #38bdf8; }
+
+        /* Semanas / dias */
+        .week-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+        .week-tag {
+            background: var(--primary-dark);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .day-list { display: flex; flex-direction: column; gap: 0; margin-top: 4px; }
+        .day-item {
+            display: flex;
+            gap: 14px;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border-color);
+            align-items: flex-start;
+        }
+        .day-item:last-child { border-bottom: none; }
+        .day-badge {
+            min-width: 58px;
+            height: 32px;
+            background: var(--brand-soft);
+            color: var(--brand-primary);
+            font-weight: 700;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            flex-shrink: 0;
+        }
+        .day-badge.milestone { background: #fef3c7; color: #92400e; }
+        .day-content h3 { font-size: 0.9rem; margin-bottom: 1px; }
+        .day-content p { font-size: 0.82rem; margin: 0; }
+        .milestone-note {
+            margin-top: 6px;
+            background: var(--brand-soft);
+            border: 1px dashed #93c5fd;
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            font-size: 0.82rem;
+            color: var(--primary-dark);
+        }
+
+        .logic-box {
+            background-color: var(--primary-dark);
+            color: #f8fafc;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .logic-box span { color: #38bdf8; }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 48px;
+            background-color: #ffffff;
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+
+        .btn {
+            background-color: var(--brand-primary);
+            color: #ffffff;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .btn:hover { background-color: #1d4ed8; }
+
+        .btn:disabled {
+            background-color: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .slide-counter { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+
+        @media (max-width: 768px) {
+            body { padding: 12px; }
+            .slide { padding: 24px; }
+            .controls { padding: 16px 24px; }
+            .grid-2, .grid-3, .payment-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="presentation-container">
+
+        <!-- Diapositiva 1: Portada -->
+        <div class="slide active" id="slide1">
+            <span class="slide-subtitle">Cronograma de Desarrollo</span>
+            <h1>Plataforma Web de Delivery Multilocal</h1>
+            <p>Plan de trabajo detallado día a día para el desarrollo de la Web Cliente, el Dashboard de Administración y la App Móvil para Locales, con autenticación integrada en todos los módulos.</p>
+
+            <div class="grid-2" style="margin-top: 8px;">
+                <div class="card card-highlight">
+                    <h2>🎯 Objetivo del Cronograma</h2>
+                    <p>Detallar las tareas técnicas que se ejecutarán cada día durante <strong>14 días (2 semanas)</strong>, garantizando avances verificables y entregas parciales medibles.</p>
+                </div>
+                <div class="card">
+                    <h2>📦 Módulos Incluidos</h2>
+                    <p><strong>1.</strong> Web Cliente &nbsp;·&nbsp; <strong>2.</strong> Dashboard Admin &nbsp;·&nbsp; <strong>3.</strong> App Móvil para Locales — los tres con sistema de <strong>login</strong> propio.</p>
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="card" style="text-align:center;">
+                    <span class="badge badge-blue">DURACIÓN</span>
+                    <h3>14 días</h3>
+                </div>
+                <div class="card" style="text-align:center;">
+                    <span class="badge badge-teal">INVERSIÓN</span>
+                    <h3>S/ 800.00</h3>
+                </div>
+                <div class="card" style="text-align:center;">
+                    <span class="badge badge-amber">STACK</span>
+                    <h3>HTML/CSS/JS + Supabase</h3>
+                </div>
+            </div>
+
+            <p style="margin-top: auto; font-size: 0.85rem; color: var(--text-muted);">
+                Presione <strong>Siguiente</strong> para revisar el alcance, el plan de pagos y el detalle día a día.
+            </p>
+        </div>
+
+        <!-- Diapositiva 2: Alcance del proyecto -->
+        <div class="slide" id="slide2">
+            <span class="slide-subtitle">Alcance del Sistema</span>
+            <h1>Los 3 Módulos del Proyecto</h1>
+
+            <div class="grid-2">
+                <div class="card">
+                    <span class="badge badge-blue">MÓDULO 1</span>
+                    <h2>🛒 Web Cliente</h2>
+                    <ul class="styled-list">
+                        <li>Catálogo de restaurantes y productos.</li>
+                        <li>Carrito de compras multilocal.</li>
+                        <li>Registro/Login de usuario.</li>
+                        <li>Ubicación por GPS/mapa y cálculo de envío.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <span class="badge badge-teal">MÓDULO 2</span>
+                    <h2>📊 Dashboard Admin</h2>
+                    <ul class="styled-list">
+                        <li>Login exclusivo para el administrador.</li>
+                        <li>Alta y edición de locales y productos.</li>
+                        <li>Gestión de categorías y precios.</li>
+                        <li>Vista general de pedidos y métricas.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card card-highlight">
+                <span class="badge badge-amber">MÓDULO 3</span>
+                <h2>📱 App Móvil para Locales (Flutter)</h2>
+                <p style="margin-bottom: 10px;">Aplicación nativa desarrollada en <strong>Flutter</strong>, conectada al mismo backend de Supabase que la Web Cliente y el Dashboard, para que cada restaurante gestione sus propios pedidos:</p>
+                <ul class="styled-list">
+                    <li><strong>Login por local:</strong> cada restaurante ingresa con su propia cuenta (mismo sistema de autenticación de toda la plataforma).</li>
+                    <li><strong>Notificación de pedidos:</strong> alerta en tiempo real ante un nuevo pedido (Supabase Realtime).</li>
+                    <li><strong>Aceptar / Rechazar:</strong> el local decide si toma el pedido.</li>
+                    <li><strong>Tiempo estimado:</strong> el local define cuánto tardará en preparar el pedido.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Diapositiva 3: Plan de pagos -->
+        <div class="slide" id="slide3">
+            <span class="slide-subtitle">Condiciones Económicas</span>
+            <h1>Plan de Pagos por Avance</h1>
+            <p>El proyecto tiene un valor total de <strong>S/ 800.00</strong>, dividido en 3 pagos vinculados a hitos concretos y verificables del desarrollo.</p>
+
+            <div class="payment-grid">
+                <div class="payment-card">
+                    <span class="label">Pago 1 · Inicio</span>
+                    <div class="amount">S/ 200</div>
+                    <p class="desc">Al entregar este cronograma y confirmar el inicio formal del proyecto.</p>
+                </div>
+                <div class="payment-card">
+                    <span class="label">Pago 2 · Avance</span>
+                    <div class="amount">S/ 200</div>
+                    <p class="desc">Al llegar a la mitad del proyecto (fin de Semana 1 / Día 7), con la Web Cliente funcional.</p>
+                </div>
+                <div class="payment-card">
+                    <span class="label">Pago 3 · Entrega</span>
+                    <div class="amount">S/ 400</div>
+                    <p class="desc">Al finalizar y entregar el sistema completo, desplegado y funcionando (Día 14).</p>
+                </div>
+            </div>
+
+            <div class="payment-total">
+                <span>Total del proyecto</span>
+                <span class="big">S/ 800.00</span>
+            </div>
+        </div>
+
+        <!-- Diapositiva 4: Semana 1 -->
+        <div class="slide" id="slide4">
+            <span class="slide-subtitle">Cronograma Detallado</span>
+            <h1>Semana 1 — Base de Datos y Web Cliente</h1>
+            <div class="week-header"><span class="week-tag">Días 1 al 7</span></div>
+
+            <div class="day-list">
+                <div class="day-item">
+                    <div class="day-badge">Día 1</div>
+                    <div class="day-content">
+                        <h3>Modelado de base de datos</h3>
+                        <p>Diseño de tablas en Supabase: usuarios, restaurantes, productos, categorías, pedidos y direcciones.</p>
+                    </div>
+                </div>
+                <div class="day-item">
+                    <div class="day-badge">Día 2</div>
+                    <div class="day-content">
+                        <h3>Configuración de Supabase</h3>
+                        <p>Autenticación (login/registro), políticas de seguridad (RLS) y estructura del repositorio en GitHub.</p>
+                    </div>
+                </div>
+                <div class="day-item">
+                    <div class="day-badge">Día 3</div>
+                    <div class="day-content">
+                        <h3>Diseño UI/UX Web Cliente</h3>
+                        <p>Maquetado de pantallas: inicio, catálogo de restaurantes y ficha de producto.</p>
+                    </div>
+                </div>
+                <div class="day-item">
+                    <div class="day-badge">Día 4</div>
+                    <div class="day-content">
+                        <h3>Catálogo y carrito de compras</h3>
+                        <p>Listado dinámico de productos por restaurante y lógica de carrito multilocal.</p>
+                    </div>
+                </div>
+                <div class="day-item">
+                    <div class="day-badge">Día 5</div>
+                    <div class="day-content">
+                        <h3>Login y registro de clientes</h3>
+                        <p>Integración de autenticación de usuarios con Supabase Auth en la Web Cliente.</p>
+                    </div>
+                </div>
+                <div class="day-item">
+                    <div class="day-badge">Día 6</div>
+                    <div class="day-content">
+                        <h3>Ubicación y cálculo de envío</h3>
+                        <p>Selección de dirección en mapa/GPS y cálculo dinámico del costo de delivery por distancia.</p>
+                    </div>
+                </div>
+                <div class="day-item">
+                    <div class="day-badge milestone">Día 7</div>
+                    <div class="day-content">
+                        <h3>Checkout y envío de pedidos</h3>
+                        <p>Conexión del carrito con Supabase para generar pedidos reales, pruebas de flujo completo del cliente.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="milestone-note">💰 <strong>Hito de pago:</strong> al cerrar el Día 7, la Web Cliente queda funcional — corresponde el segundo pago de S/ 200.</div>
+        </div>
+
+        <!-- Diapositiva 5: Semana 2 -->
+        <div class="slide" id="slide5">
+            <span class="slide-subtitle">Cronograma Detallado</span>
+            <h1>Semana 2 — Dashboard Admin y App Móvil</h1>
+            <div class="week-header"><span class="week-tag">Días 8 al 14</span></div>
+
+            <div class="day-list">
+                <div class="day-item">
+                    <div class="day-badge">Día 8</div>
+                    <div class="day-content">
+                        <h3>Login y estructura del Dashboard Admin</h3>
+                        <p>Acceso exclusivo para el administrador y diseño del panel de control.</p>
+                    </div>
+                </div>
+                <div class="day-item">
+                    <div class="day-badge">Día 9</div>
+                    <div class="day-content">
+                        <h3>Gestión de locales</h3>
+                        <p>CRUD de restaurantes: alta, edición, logotipo, banner, horarios y ubicación.</p>
+                    </div>
+                </div>
+                <div class="day-item">
+                    <div class="day-badge">Día 10</div>
+                    <div class="day-content">
+                        <h3>Gestión de productos y categorías</h3>
+                        <p>Alta/edición de platos, precios, imágenes y opciones configurables (combos, variantes).</p>
+                    </div>
+                </div>
+                <div class="day-item">
+                    <div class="day-badge">Día 11</div>
+                    <div class="day-content">
+                        <h3>Panel de pedidos y métricas</h3>
+                        <p>Vista global de pedidos por local y estadísticas básicas para el administrador.</p>
+                    </div>
+                </div>
+                <div class="day-item">
+                    <div class="day-badge">Día 12</div>
+                    <div class="day-content">
+                        <h3>Estructura de la App Móvil en Flutter</h3>
+                        <p>Configuración del proyecto Flutter, integración con Supabase (supabase_flutter) y pantalla de login por local.</p>
+                    </div>
+                </div>
+                <div class="day-item">
+                    <div class="day-badge">Día 13</div>
+                    <div class="day-content">
+                        <h3>Aceptar / rechazar pedidos en tiempo real</h3>
+                        <p>Notificaciones instantáneas (Supabase Realtime), aceptación del pedido y asignación de tiempo estimado.</p>
+                    </div>
+                </div>
+                <div class="day-item">
+                    <div class="day-badge milestone">Día 14</div>
+                    <div class="day-content">
+                        <h3>Pruebas finales y despliegue</h3>
+                        <p>Pruebas integrales de los 3 módulos, generación del APK de la app y publicación de la Web/Dashboard en GitHub Pages.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="milestone-note">💰 <strong>Hito de pago:</strong> al cerrar el Día 14 se entrega el sistema completo — corresponde el pago final de S/ 400.</div>
+        </div>
+
+        <!-- Diapositiva 6: Tecnologías -->
+        <div class="slide" id="slide6">
+            <span class="slide-subtitle">Arquitectura Técnica</span>
+            <h1>Tecnologías Utilizadas</h1>
+
+            <div class="grid-2">
+                <div class="card">
+                    <span class="badge badge-blue">WEB CLIENTE + DASHBOARD ADMIN</span>
+                    <h2>HTML5 / CSS3 / JavaScript</h2>
+                    <ul class="styled-list">
+                        <li>Interfaz responsiva, optimizada para navegadores móviles y de escritorio.</li>
+                        <li><strong>GitHub Pages:</strong> hosting gratuito, con SSL incluido.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <span class="badge badge-amber">APP MÓVIL DE LOCALES</span>
+                    <h2>Flutter</h2>
+                    <ul class="styled-list">
+                        <li>App nativa (Android/iOS) desde un único código base.</li>
+                        <li>Conectada al mismo backend mediante el SDK <strong>supabase_flutter</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <span class="badge badge-teal">BACKEND & BASE DE DATOS (compartido por los 3 módulos)</span>
+                <h2>Supabase</h2>
+                <ul class="styled-list">
+                    <li><strong>Auth:</strong> un mismo sistema de login para cliente, admin y locales — funciona igual desde la web (JS) y desde la app (Flutter).</li>
+                    <li><strong>Base de datos y Realtime:</strong> pedidos sincronizados al instante entre la Web Cliente y la App de Locales.</li>
+                    <li><strong>Storage:</strong> imágenes de logos, banners y productos.</li>
+                </ul>
+            </div>
+
+            <div class="logic-box">
+                // Flujo general del sistema:<br>
+                Cliente → <span>crea pedido</span> en Web Cliente (JS + Supabase);<br>
+                Local → <span>recibe notificación</span> en App Móvil Flutter en tiempo real;<br>
+                Admin → <span>supervisa todo</span> desde el Dashboard (JS + Supabase).
+            </div>
+
+            <div class="milestone-note">📌 <strong>Distribución de la app:</strong> se entrega como APK instalable directamente en los dispositivos de cada local, sin costo adicional.</div>
+        </div>
+
+        <!-- Diapositiva 7: Infraestructura y Costos Adicionales -->
+        <div class="slide" id="slide7">
+            <span class="slide-subtitle">Costos Fuera del Proyecto</span>
+            <h1>Infraestructura, Dominio y Escalabilidad</h1>
+            <p>El desarrollo cubre el sistema completo, pero hay dos puntos de infraestructura que dependen de servicios externos y que el cliente debe conocer desde ahora.</p>
+
+            <div class="card">
+                <span class="badge badge-blue">DOMINIO WEB</span>
+                <h2>🌐 Nombre de dominio (opcional, no incluido)</h2>
+                <p>GitHub Pages ya incluye una dirección gratuita (ej. <strong>usuario.github.io</strong>), 100% funcional para lanzar el proyecto. Si el cliente prefiere una dirección propia (ej. <strong>www.milocal.com</strong>), la compra del dominio corre por su cuenta, con un costo aproximado de <strong>$12 - $15 USD al año</strong> en proveedores como Namecheap o GoDaddy. Este costo es recurrente (anual) y externo al pago del desarrollo.</p>
+            </div>
+
+            <div class="card card-highlight">
+                <span class="badge badge-amber">LÍMITES DE SUPABASE</span>
+                <h2>📊 ¿Qué pasa si se rebasa el límite gratuito?</h2>
+                <p style="margin-bottom: 10px;">El plan gratuito de Supabase incluye hasta <strong>500 MB de base de datos</strong>, <strong>1 GB de almacenamiento</strong> de imágenes y <strong>50,000 usuarios activos al mes</strong> — suficiente para el lanzamiento y los primeros meses de operación.</p>
+                <ul class="styled-list">
+                    <li>Si el proyecto crece y se supera alguno de estos límites, Supabase <strong>no borra ni bloquea la información</strong>, pero limita ciertas funciones hasta actualizar el plan.</li>
+                    <li>La solución es pasar al <strong>Plan Pro de Supabase</strong>, con un costo aproximado de <strong>$25 USD al mes</strong>, que amplía considerablemente estos límites.</li>
+                    <li>Este es un costo de mantenimiento a futuro, no del desarrollo actual, y solo aplicaría cuando el negocio ya esté generando volumen real de pedidos.</li>
+                </ul>
+            </div>
+
+            <div class="milestone-note">📌 <strong>En resumen:</strong> el proyecto puede lanzarse con <strong>S/ 0.00 de costo mensual</strong>. El dominio propio y el plan Pro de Supabase son mejoras opcionales que se activan solo si el cliente las necesita.</div>
+        </div>
+
+        <!-- Navegación Inferior -->
+        <div class="controls">
+            <button class="btn" id="prevBtn" onclick="changeSlide(-1)" disabled>Anterior</button>
+            <span class="slide-counter" id="slideCounter">Página 1 de 7</span>
+            <button class="btn" id="nextBtn" onclick="changeSlide(1)">Siguiente</button>
+        </div>
+
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 7;
+
+        function updateSlide() {
+            document.querySelectorAll('.slide').forEach(slide => {
+                slide.classList.remove('active');
+            });
+
+            document.getElementById(`slide${currentSlide}`).classList.add('active');
+            document.getElementById('slideCounter').textContent = `Página ${currentSlide} de ${totalSlides}`;
+
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+        }
+
+        function changeSlide(direction) {
+            currentSlide += direction;
+            if (currentSlide < 1) currentSlide = 1;
+            if (currentSlide > totalSlides) currentSlide = totalSlides;
+            updateSlide();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                if (currentSlide < totalSlides) changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                if (currentSlide > 1) changeSlide(-1);
+            }
+        });
+    </script>
+</body>
+</html>
